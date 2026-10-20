@@ -46,3 +46,24 @@ TOOLS = types.Tool(function_declarations=[
         },
     },
 ])
+
+class ChatRequest(BaseModel):
+    message: str
+
+@app.get("/")
+def read_root():
+    return {"status": "online", "message": "Chuck backend is running."}
+
+@app.post("/chat")
+def chat_endpoint(req: ChatRequest):
+    try:
+        response = client.models.generate_content(
+            model=MODEL,
+            contents=req.message,
+            config=types.GenerateContentConfig(
+                tools=[TOOLS]
+            )
+        )
+        return {"response": response.text}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
