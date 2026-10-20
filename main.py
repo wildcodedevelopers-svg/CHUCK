@@ -38,5 +38,11 @@ TOOLS = types.Tool(function_declarations=[
     },
     {
         "name": "open_url",
-        "description": "Open an app or website on the user's phone using a URL or deep link, "
-        "e.g. https://youtube.com, spotify:, tel:+15551234567, "
+        "description": "Open an app or website on the user's phone using a URL or deep link, e.g. https://youtube.com, spotify:, tel:+15551234567.",
+        "parameters": {
+            "type": "object",
+            "properties": {"url": {"type": "string"}},
+            "required": ["url"],
+        },
+    },
+])
