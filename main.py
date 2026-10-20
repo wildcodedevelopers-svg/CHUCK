@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from google import genai
 from google.genai import types
 
-MODEL = os.getenv("MODEL", "gemini-3.8-flash")
+MODEL = os.getenv("MODEL", "gemini-1.5-flash")
 TOKEN = os.getenv("CHUCK_TOKEN", "")
 DB_PATH = os.getenv("DB_PATH", "chuck.db")
 
