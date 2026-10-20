@@ -38,15 +38,10 @@ body {
     overscroll-behavior: none;
 }
 
-button, input {
-    font: inherit;
-}
+button, input { font: inherit; }
+button { cursor: pointer; }
 
-button {
-    cursor: pointer;
-}
-
-/* FULL-SCREEN SPACE */
+/* BACKGROUND */
 
 .space {
     position: fixed;
@@ -103,7 +98,7 @@ button {
     to { opacity: .27; transform: scale(1.15); }
 }
 
-/* TOP BAR */
+/* HEADER */
 
 .topbar {
     position: absolute;
@@ -127,9 +122,7 @@ button {
     text-shadow: 0 0 15px #008cff;
 }
 
-.logo span {
-    color: var(--cyan);
-}
+.logo span { color: var(--cyan); }
 
 .subtitle {
     margin-top: 4px;
@@ -160,7 +153,12 @@ button {
     box-shadow: 0 0 10px #ffc65b;
 }
 
-/* THE ORB OWNS THE SCREEN */
+.dot.error {
+    background: #ff5c7a;
+    box-shadow: 0 0 10px #ff5c7a;
+}
+
+/* FULL-SCREEN SATURN ORB */
 
 .orb-zone {
     position: absolute;
@@ -171,7 +169,6 @@ button {
     display: grid;
     place-items: center;
     overflow: hidden;
-    transition: bottom .25s ease;
 }
 
 .orb-stage {
@@ -199,8 +196,6 @@ button {
 @keyframes halo {
     to { opacity: .75; transform: scale(1.23); }
 }
-
-/* Planet */
 
 .planet {
     position: absolute;
@@ -244,12 +239,7 @@ button {
     height: 17%;
     transform: rotate(-24deg);
     background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(0,234,255,.7),
-        white,
-        #008cff,
-        transparent
+        90deg, transparent, rgba(0,234,255,.7), white, #008cff, transparent
     );
     filter: blur(7px);
 }
@@ -258,7 +248,7 @@ button {
     to { filter: brightness(1.3); }
 }
 
-/* FOUR DIFFERENT ORBITAL RINGS */
+/* FOUR INTERSECTING RINGS */
 
 .ring {
     position: absolute;
@@ -289,7 +279,6 @@ button {
     margin: -17.5% 0 0 -45.5%;
     border-top-color: rgba(0,234,255,.95);
     border-right-color: #d5ffff;
-    border-bottom-color: transparent;
     border-left-color: #126bff;
     box-shadow: 0 0 13px rgba(0,205,255,.8);
     animation: orbitB 16s linear infinite;
@@ -356,7 +345,7 @@ button {
     to { transform: scale(1.12); filter: brightness(1.5); }
 }
 
-/* STATUS FLOATING UNDER THE ORB */
+/* ORB STATUS */
 
 .core-info {
     position: absolute;
@@ -390,7 +379,7 @@ button {
     box-shadow: 0 0 8px #008cff;
 }
 
-/* CHAT FLOATS ABOVE THE BOTTOM CONTROLS */
+/* CHAT */
 
 .chat-feed {
     position: absolute;
@@ -410,9 +399,7 @@ button {
     pointer-events: none;
 }
 
-.chat-feed::-webkit-scrollbar {
-    display: none;
-}
+.chat-feed::-webkit-scrollbar { display: none; }
 
 .message {
     align-self: flex-start;
@@ -476,7 +463,7 @@ button {
     to { opacity: .2; transform: translateY(-3px); }
 }
 
-/* BOTTOM COMMAND DECK */
+/* FIXED BOTTOM CONTROLS */
 
 .bottom {
     position: absolute;
@@ -545,9 +532,7 @@ button {
     font-size: 12px;
 }
 
-#userInput::placeholder {
-    color: #527493;
-}
+#userInput::placeholder { color: #527493; }
 
 .btn {
     height: 49px;
@@ -622,15 +607,16 @@ button {
     letter-spacing: 1.5px;
 }
 
-.footer span {
-    color: #70baff;
-}
+.footer span { color: #70baff; }
 
 @media (max-height: 650px) {
     .orb-zone { top: 55px; bottom: 140px; }
     .orb-stage { width: min(76vw, 340px); }
     .core-info { bottom: 4px; }
-    .chat-feed { max-height: 19dvh; bottom: calc(132px + env(safe-area-inset-bottom)); }
+    .chat-feed {
+        max-height: 19dvh;
+        bottom: calc(132px + env(safe-area-inset-bottom));
+    }
     .bottom { padding-top: 7px; }
     .btn, .input-wrap { height: 43px; }
     .btn { width: 43px; }
@@ -641,7 +627,11 @@ button {
 
 @media (min-width: 700px) {
     .orb-stage { width: min(65vw, 510px); }
-    .chat-feed { left: 50%; transform: translateX(-50%); width: min(520px, 90vw); }
+    .chat-feed {
+        left: 50%;
+        transform: translateX(-50%);
+        width: min(520px, 90vw);
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -672,8 +662,6 @@ button {
     </div>
 </header>
 
-<!-- LARGE FULL-SCREEN ORB -->
-
 <section class="orb-zone">
     <div class="orb-stage" id="orbStage">
         <div class="halo"></div>
@@ -691,8 +679,6 @@ button {
     </div>
 </section>
 
-<!-- RESPONSES FLOAT OVER THE BACKGROUND -->
-
 <section class="chat-feed" id="messages" aria-live="polite">
     <div class="message">
         <span class="msg-label">C.H.U.C.K. / CORE</span>
@@ -700,11 +686,8 @@ button {
     </div>
 </section>
 
-<!-- ALL COMMAND CONTROLS STAY AT THE BOTTOM -->
-
 <section class="bottom">
     <div class="bottom-inner">
-
         <div class="command-label">
             <span>COMMAND INPUT</span>
             <strong id="aiStatus">AI STANDBY</strong>
@@ -723,21 +706,17 @@ button {
             </div>
 
             <button class="btn" type="button" id="micBtn"
-                    aria-label="Record voice command" title="Record">
-                🎙
-            </button>
+                    aria-label="Record voice command" title="Record">🎙</button>
 
             <button class="btn send" type="submit"
-                    aria-label="Send command" title="Send">
-                ➤
-            </button>
+                    aria-label="Send command" title="Send">➤</button>
         </form>
 
         <div class="tools-row">
             <button class="tool" id="wakeBtn" type="button">
                 <span>◉</span><span id="wakeLabel">WAKE WORD OFF</span>
             </button>
-            <button class="tool" id="voiceBtn" type="button">
+            <button class="tool active" id="voiceBtn" type="button">
                 <span>♫</span><span id="voiceLabel">VOICE ON</span>
             </button>
             <button class="tool" id="clearBtn" type="button">
@@ -754,9 +733,10 @@ button {
 <script>
 "use strict";
 
-/* BACKEND */
-
-const BACKEND_URL = "https://chuck-ai-backend.onrender.com/ask";
+/* BACKEND CONFIGURATION
+   This must match your working Render service.
+*/
+const BACKEND_URL = "https://chuck-10.onrender.com/ask";
 
 const $ = id => document.getElementById(id);
 
@@ -773,7 +753,6 @@ let manualRecording = false;
 let voiceEnabled = true;
 let recognition = null;
 let recognitionRunning = false;
-let pendingRestart = false;
 let restartTimer = null;
 
 /* STAR FIELD */
@@ -784,26 +763,29 @@ let restartTimer = null;
     for (let i = 0; i < 65; i++) {
         const star = document.createElement("div");
         star.className = "star";
-        star.style.left = (Math.random() * 100) + "%";
-        star.style.top = (Math.random() * 100) + "%";
-        star.style.animationDelay = (Math.random() * 4) + "s";
-        star.style.animationDuration = (2 + Math.random() * 4) + "s";
+        star.style.left = Math.random() * 100 + "%";
+        star.style.top = Math.random() * 100 + "%";
+        star.style.animationDelay = Math.random() * 4 + "s";
+        star.style.animationDuration = 2 + Math.random() * 4 + "s";
         container.appendChild(star);
     }
 })();
 
-/* UI STATUS */
+/* STATUS DISPLAY */
 
 function setStatus(mode, label) {
     $("statusText").textContent = label;
+
     $("coreStatus").textContent =
         mode === "listening" ? "LISTENING FOR COMMANDS" :
         mode === "thinking" ? "PROCESSING REQUEST" :
         mode === "error" ? "CONNECTION INTERRUPTED" :
         wakeMode ? "WAKE WORD ACTIVE" : "AWAITING COMMAND";
 
-    $("statusDot").className = "dot" +
-        (mode === "thinking" ? " busy" : "");
+    $("statusDot").className =
+        "dot" +
+        (mode === "thinking" ? " busy" :
+        mode === "error" ? " error" : "");
 
     orb.classList.toggle("listening", mode === "listening");
     orb.classList.toggle("thinking", mode === "thinking");
@@ -814,7 +796,7 @@ function setStatus(mode, label) {
         mode === "listening" ? "VOICE ACTIVE" : "AI STANDBY";
 }
 
-/* CHAT */
+/* CHAT DISPLAY */
 
 function addMessage(text, sender = "ai") {
     const bubble = document.createElement("div");
@@ -837,6 +819,8 @@ function addMessage(text, sender = "ai") {
 }
 
 function showTyping() {
+    hideTyping();
+
     const el = document.createElement("div");
     el.className = "typing";
     el.id = "typing";
@@ -869,6 +853,7 @@ function speak(text) {
     utterance.pitch = 0.85;
 
     const voices = speechSynthesis.getVoices();
+
     const selected = voices.find(v =>
         /david|mark|daniel|james|guy/i.test(v.name) &&
         /en/i.test(v.lang)
@@ -879,7 +864,58 @@ function speak(text) {
     speechSynthesis.speak(utterance);
 }
 
-/* SEND TO YOUR EXISTING AI BACKEND */
+/* ANDROID BRIDGE SUPPORT */
+
+function sendThroughAndroidBridge(message) {
+    return new Promise((resolve, reject) => {
+        const callbackId =
+            "chuck_callback_" + Date.now() + "_" +
+            Math.random().toString(36).slice(2, 8);
+
+        const timeout = setTimeout(() => {
+            delete window[callbackId];
+            reject(new Error("Android backend request timed out."));
+        }, 60000);
+
+        window[callbackId] = result => {
+            clearTimeout(timeout);
+            delete window[callbackId];
+
+            try {
+                const obj = typeof result === "string"
+                    ? JSON.parse(result)
+                    : result;
+
+                if (obj && typeof obj === "object" && obj.error) {
+                    reject(new Error(obj.error));
+                    return;
+                }
+
+                const reply = typeof obj === "string"
+                    ? obj
+                    : obj?.response ?? obj?.reply ?? obj?.message;
+
+                resolve(reply);
+            } catch (error) {
+                if (typeof result === "string" && result.trim()) {
+                    resolve(result);
+                } else {
+                    reject(new Error("Could not read the Android response."));
+                }
+            }
+        };
+
+        try {
+            window.ChuckBridge.sendMessage(message, callbackId);
+        } catch (error) {
+            clearTimeout(timeout);
+            delete window[callbackId];
+            reject(error);
+        }
+    });
+}
+
+/* SEND MESSAGE TO C.H.U.C.K. */
 
 async function sendMessage(raw) {
     const message = String(raw || "").trim();
@@ -894,85 +930,73 @@ async function sendMessage(raw) {
     showTyping();
 
     try {
-        let response;
+        let reply;
 
-        // Use the native Android bridge if your app exposes it.
-        if (window.ChuckBridge &&
-            typeof window.ChuckBridge.sendMessage === "function") {
-
-            response = await new Promise((resolve, reject) => {
-                const callbackId = "chuck_" + Date.now();
-
-                const timeout = setTimeout(() => {
-                    delete window[callbackId];
-                    reject(new Error("Native request timed out"));
-                }, 60000);
-
-                window[callbackId] = result => {
-                    clearTimeout(timeout);
-                    delete window[callbackId];
-
-                    try {
-                        const obj = typeof result === "string"
-                            ? JSON.parse(result) : result;
-
-                        resolve(
-                            typeof obj === "string" ? obj :
-                            obj.reply ?? obj.response ?? obj.message
-                        );
-                    } catch {
-                        resolve(result);
-                    }
-                };
-
-                try {
-                    window.ChuckBridge.sendMessage(message, callbackId);
-                } catch (err) {
-                    clearTimeout(timeout);
-                    delete window[callbackId];
-                    reject(err);
-                }
-            });
-
+        // Use the Android bridge when the installed app provides it.
+        if (
+            window.ChuckBridge &&
+            typeof window.ChuckBridge.sendMessage === "function"
+        ) {
+            reply = await sendThroughAndroidBridge(message);
         } else {
+            // Website connection: POST JSON to Render.
             const controller = new AbortController();
             const timeout = setTimeout(() => controller.abort(), 60000);
 
             try {
                 const res = await fetch(BACKEND_URL, {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json"
+                    },
                     body: JSON.stringify({ message }),
                     signal: controller.signal
                 });
 
+                // Read the body even when the server returns an error.
+                const data = await res.json().catch(() => ({}));
+
                 if (!res.ok) {
-                    throw new Error("Backend HTTP " + res.status);
+                    throw new Error(
+                        data.detail ||
+                        data.message ||
+                        `Backend returned HTTP ${res.status}`
+                    );
                 }
 
-                const data = await res.json();
-                response = data.reply ?? data.response ?? data.message;
-
+                reply = data.response ?? data.reply ?? data.message;
             } finally {
                 clearTimeout(timeout);
             }
         }
 
-        if (typeof response !== "string" || !response.trim()) {
-            throw new Error("The backend returned no readable reply.");
+        if (typeof reply !== "string" || !reply.trim()) {
+            throw new Error(
+                "The server responded, but no readable reply was found."
+            );
         }
 
-        addMessage(response, "ai");
-        speak(response);
+        addMessage(reply, "ai");
+        speak(reply);
+        setStatus("ready", "CORE ONLINE");
 
     } catch (err) {
-        console.error("CHUCK:", err);
+        console.error("C.H.U.C.K. connection error:", err);
 
-        const errorMessage = err.name === "AbortError"
-            ? "The request timed out. The backend may be waking up."
-            : "I couldn't connect to my AI backend, Boss Wayne. Check your connection and the /ask endpoint.";
+        let explanation;
 
-        addMessage(errorMessage, "ai");
+        if (err.name === "AbortError") {
+            explanation =
+                "The request timed out. Render may be waking up, or Gemini may be busy.";
+        } else if (err instanceof TypeError) {
+            explanation =
+                "Network or CORS error. Check the Render URL, internet connection, and backend CORS settings.";
+        } else {
+            explanation = "Connection error: " + err.message;
+        }
+
+        addMessage(explanation, "ai");
         setStatus("error", "CONNECTION ISSUE");
 
     } finally {
@@ -981,8 +1005,6 @@ async function sendMessage(raw) {
 
         if (wakeMode || manualRecording) {
             setStatus("listening", "VOICE ACTIVE");
-        } else if ($("statusText").textContent !== "CONNECTION ISSUE") {
-            setStatus("ready", "CORE ONLINE");
         }
     }
 }
@@ -1015,7 +1037,9 @@ function initializeVoice() {
         for (let i = event.resultIndex; i < event.results.length; i++) {
             if (!event.results[i].isFinal) continue;
 
-            const transcript = event.results[i][0].transcript.trim();
+            const transcript =
+                event.results[i][0].transcript.trim();
+
             if (!transcript) continue;
 
             if (manualRecording) {
@@ -1026,7 +1050,9 @@ function initializeVoice() {
             }
 
             if (wakeMode) {
-                const match = transcript.match(/\bchuck\b[\s,.:;-]*(.*)/i);
+                const match = transcript.match(
+                    /\bchuck\b[\s,.:;-]*(.*)/i
+                );
 
                 if (match) {
                     const command = match[1].trim();
@@ -1034,7 +1060,10 @@ function initializeVoice() {
                     if (command) {
                         sendMessage(command);
                     } else {
-                        addMessage("I'm listening, Boss Wayne. What's your command?", "ai");
+                        addMessage(
+                            "I'm listening, Boss Wayne. What's your command?",
+                            "ai"
+                        );
                         speak("Yes, Boss Wayne. I'm listening.");
                     }
                 }
@@ -1043,14 +1072,20 @@ function initializeVoice() {
     };
 
     recognition.onerror = event => {
-        console.warn("Voice error:", event.error);
+        console.warn("Voice recognition error:", event.error);
 
-        if (event.error === "not-allowed" ||
-            event.error === "service-not-allowed") {
+        if (
+            event.error === "not-allowed" ||
+            event.error === "service-not-allowed"
+        ) {
             wakeMode = false;
             manualRecording = false;
             updateWakeButton();
             setStatus("error", "MIC PERMISSION");
+            addMessage(
+                "Microphone permission was denied. Allow microphone access in your browser settings.",
+                "ai"
+            );
         }
     };
 
@@ -1058,13 +1093,11 @@ function initializeVoice() {
         recognitionRunning = false;
 
         if (wakeMode || manualRecording) {
-            pendingRestart = true;
             clearTimeout(restartTimer);
 
             restartTimer = setTimeout(() => {
-                pendingRestart = false;
                 startRecognition();
-            }, 450);
+            }, 500);
         } else {
             micBtn.classList.remove("active");
             setStatus("ready", "CORE ONLINE");
@@ -1078,7 +1111,7 @@ function startRecognition() {
     try {
         recognition.start();
     } catch (err) {
-        console.warn("Could not start voice recognition:", err.message);
+        console.warn("Could not start recognition:", err.message);
     }
 }
 
@@ -1095,13 +1128,20 @@ function stopRecognitionIfIdle() {
 }
 
 function updateWakeButton() {
-    $("wakeLabel").textContent = wakeMode ? "WAKE WORD ON" : "WAKE WORD OFF";
+    $("wakeLabel").textContent =
+        wakeMode ? "WAKE WORD ON" : "WAKE WORD OFF";
+
     wakeBtn.classList.toggle("active", wakeMode);
 }
 
+/* MICROPHONE BUTTON */
+
 micBtn.addEventListener("click", () => {
     if (!recognition) {
-        addMessage("Voice recognition is not supported in this browser.", "ai");
+        addMessage(
+            "Voice recognition is not supported in this browser. Try Chrome and allow microphone access.",
+            "ai"
+        );
         return;
     }
 
@@ -1112,7 +1152,6 @@ micBtn.addEventListener("click", () => {
         return;
     }
 
-    // A manual recording takes priority over wake-word mode.
     manualRecording = true;
     micBtn.classList.add("active");
 
@@ -1123,9 +1162,14 @@ micBtn.addEventListener("click", () => {
     }
 });
 
+/* WAKE WORD BUTTON */
+
 wakeBtn.addEventListener("click", () => {
     if (!recognition) {
-        addMessage("Wake-word recognition is not supported by this browser.", "ai");
+        addMessage(
+            "Wake-word recognition is not supported in this browser.",
+            "ai"
+        );
         return;
     }
 
@@ -1148,17 +1192,21 @@ wakeBtn.addEventListener("click", () => {
     }
 });
 
-/* BOTTOM CONTROLS */
+/* TEXT CHAT */
 
 $("chatForm").addEventListener("submit", event => {
     event.preventDefault();
     sendMessage(input.value);
 });
 
+/* VOICE OUTPUT TOGGLE */
+
 voiceBtn.addEventListener("click", () => {
     voiceEnabled = !voiceEnabled;
 
-    $("voiceLabel").textContent = voiceEnabled ? "VOICE ON" : "VOICE OFF";
+    $("voiceLabel").textContent =
+        voiceEnabled ? "VOICE ON" : "VOICE OFF";
+
     voiceBtn.classList.toggle("active", voiceEnabled);
 
     if (!voiceEnabled && "speechSynthesis" in window) {
@@ -1166,12 +1214,18 @@ voiceBtn.addEventListener("click", () => {
     }
 });
 
+/* CLEAR CHAT */
+
 $("clearBtn").addEventListener("click", () => {
     messages.replaceChildren();
-    addMessage("Channel cleared, Boss Wayne. Awaiting your next command.", "ai");
+
+    addMessage(
+        "Channel cleared, Boss Wayne. Awaiting your next command.",
+        "ai"
+    );
 });
 
-/* START */
+/* INITIALIZE */
 
 initializeVoice();
 setStatus("ready", "CORE ONLINE");
