@@ -1,1068 +1,1182 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#020510">
-<title>C.H.U.C.K. AI</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#020611">
+<title>C.H.U.C.K. | AI Core</title>
 
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap');
+
 :root {
-  --blue: #087bff;
-  --cyan: #00eeff;
-  --violet: #8050ff;
-  --bg: #020510;
-  --text: #eaf7ff;
-  --muted: #7e9bbb;
+    --blue: #087dff;
+    --cyan: #00eaff;
+    --bg: #020611;
+    --muted: #6589ad;
 }
 
 * {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  -webkit-tap-highlight-color: transparent;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: var(--bg);
+    color: #e9f8ff;
+    font-family: Inter, sans-serif;
 }
 
 body {
-  height: 100dvh;
-  overflow: hidden;
-  background: #01030a;
-  color: var(--text);
-  font-family: "Segoe UI", system-ui, sans-serif;
+    height: 100dvh;
+    min-height: 100%;
+    overscroll-behavior: none;
 }
 
-button, input { font: inherit; }
-button { cursor: pointer; color: inherit; }
-
-.app {
-  position: relative;
-  isolation: isolate;
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  max-width: 460px;
-  height: 100dvh;
-  margin: auto;
-  overflow: hidden;
-  background:
-    radial-gradient(ellipse at 50% 30%, #082354 0%, transparent 48%),
-    linear-gradient(160deg, #040b1b, #01030a 80%);
+button, input {
+    font: inherit;
 }
 
-/* GLOBAL AMBIENT GLOW */
+button {
+    cursor: pointer;
+}
+
+/* FULL-SCREEN SPACE */
+
+.space {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    background:
+        radial-gradient(ellipse at 50% 45%, #09244a 0%, #041329 35%, transparent 68%),
+        radial-gradient(ellipse at 10% 90%, #06152b, transparent 50%),
+        #020611;
+}
+
+.grid {
+    position: absolute;
+    inset: 0;
+    opacity: .22;
+    background-image:
+        linear-gradient(rgba(0,180,255,.07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,180,255,.07) 1px, transparent 1px);
+    background-size: 35px 35px;
+    mask-image: radial-gradient(ellipse, black, transparent 85%);
+}
+
+.star {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    border-radius: 50%;
+    background: #b5f5ff;
+    box-shadow: 0 0 7px #00bfff;
+    animation: twinkle 3s infinite alternate;
+}
+
+@keyframes twinkle {
+    from { opacity: .15; transform: scale(.7); }
+    to { opacity: .95; transform: scale(1.5); }
+}
 
 .ambient {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  pointer-events: none;
-  z-index: -1;
+    position: absolute;
+    width: 60vw;
+    height: 60vw;
+    max-width: 440px;
+    max-height: 440px;
+    border-radius: 50%;
+    background: #006eff;
+    filter: blur(110px);
+    opacity: .13;
+    top: 23%;
+    left: 20%;
+    animation: ambientPulse 5s ease-in-out infinite alternate;
 }
 
-.ambient::before,
-.ambient::after {
-  content: "";
-  position: absolute;
-  width: 300px;
-  height: 300px;
-  border-radius: 50%;
-  filter: blur(85px);
-  opacity: .22;
-  background: #006aff;
-  animation: drift 12s ease-in-out infinite alternate;
-}
-
-.ambient::before {
-  top: 10%;
-  left: -160px;
-}
-
-.ambient::after {
-  bottom: 5%;
-  right: -180px;
-  background: #4724ff;
-  animation-delay: -5s;
-}
-
-@keyframes drift {
-  to { transform: translate(110px, 80px) scale(1.3); }
-}
-
-@keyframes pulse {
-  0%, 100% { transform: scale(.96); filter: brightness(.9); }
-  50% { transform: scale(1.06); filter: brightness(1.35); }
-}
-
-@keyframes rotate {
-  to { transform: rotate(360deg); }
-}
-
-@keyframes rotateBack {
-  to { transform: rotate(-360deg); }
-}
-
-@keyframes energy {
-  0%, 100% { opacity: .45; }
-  50% { opacity: 1; }
+@keyframes ambientPulse {
+    to { opacity: .27; transform: scale(1.15); }
 }
 
 /* TOP BAR */
 
 .topbar {
-  height: 70px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 19px;
-  border-bottom: 1px solid #167dff36;
-  background: #030917bb;
-  backdrop-filter: blur(20px);
-  z-index: 5;
+    position: absolute;
+    z-index: 10;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: max(env(safe-area-inset-top), 14px) 20px 13px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(0,190,255,.16);
+    background: linear-gradient(#020611d9, #02061138);
 }
 
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+.logo {
+    font-family: Orbitron, sans-serif;
+    font-weight: 800;
+    font-size: 18px;
+    letter-spacing: 3px;
+    text-shadow: 0 0 15px #008cff;
 }
 
-.brand-core {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%,
-    white 0%, #a4faff 7%, #00c8ff 20%,
-    #0758ff 42%, #060d30 72%);
-  box-shadow: 0 0 12px #00cfff, 0 0 30px #006aff99;
-  animation: pulse 3s infinite;
+.logo span {
+    color: var(--cyan);
 }
 
-.brand-name {
-  font-size: 15px;
-  font-weight: 850;
-  letter-spacing: 3px;
+.subtitle {
+    margin-top: 4px;
+    font-size: 8px;
+    color: #6f9bc0;
+    letter-spacing: 2px;
 }
 
-.brand-sub {
-  font-size: 9px;
-  letter-spacing: 3px;
-  color: var(--cyan);
-  margin-top: 3px;
+.connection {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 9px;
+    letter-spacing: 1.2px;
+    color: #9ac9ed;
 }
 
-.online {
-  font-size: 10px;
-  color: #66ffd1;
+.dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #00e6a0;
+    box-shadow: 0 0 10px #00e6a0;
 }
 
-.online::before {
-  content: "";
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  background: #44ffc1;
-  border-radius: 50%;
-  margin-right: 6px;
-  box-shadow: 0 0 10px #44ffc1;
+.dot.busy {
+    background: #ffc65b;
+    box-shadow: 0 0 10px #ffc65b;
 }
 
-/* SCREENS */
+/* THE ORB OWNS THE SCREEN */
 
-.screen {
-  display: none;
-  flex: 1;
-  min-height: 0;
-  flex-direction: column;
-  position: relative;
-  overflow: hidden;
+.orb-zone {
+    position: absolute;
+    top: 65px;
+    bottom: 155px;
+    left: 0;
+    right: 0;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    transition: bottom .25s ease;
 }
-
-.screen.active { display: flex; }
-
-.heading {
-  padding: 22px 22px 12px;
-}
-
-.eyebrow {
-  font-size: 10px;
-  letter-spacing: 3px;
-  color: var(--cyan);
-  font-weight: 750;
-}
-
-h1 {
-  font-size: 27px;
-  margin-top: 9px;
-  line-height: 1.25;
-}
-
-.gradient {
-  background: linear-gradient(90deg, white, #4eeaff, #8b80ff);
-  color: transparent;
-  background-clip: text;
-  -webkit-background-clip: text;
-}
-
-.description {
-  font-size: 12px;
-  line-height: 1.7;
-  color: var(--muted);
-  margin-top: 8px;
-}
-
-/* HOME */
-
-.home-scroll {
-  overflow-y: auto;
-  padding: 12px 19px 20px;
-}
-
-.welcome {
-  display: flex;
-  align-items: center;
-  gap: 11px;
-  margin-bottom: 19px;
-}
-
-.avatar {
-  width: 42px;
-  height: 42px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  color: var(--cyan);
-  background: #071b3b;
-  border: 1px solid #168dff;
-  box-shadow: 0 0 20px #006aff44;
-}
-
-.welcome strong { font-size: 13px; }
-.welcome p { font-size: 11px; color: var(--muted); margin-top: 4px; }
-
-.hero {
-  position: relative;
-  overflow: hidden;
-  padding: 22px;
-  min-height: 215px;
-  border: 1px solid #168dff8a;
-  border-radius: 22px;
-  background:
-    radial-gradient(circle at 100% 50%, #006dff44, transparent 45%),
-    linear-gradient(145deg, #0c2040, #030917);
-  box-shadow: 0 0 25px #006aff20, inset 0 0 30px #087bff10;
-}
-
-.hero h1 { font-size: 27px; max-width: 245px; }
-.hero p { max-width: 230px; margin-top: 10px; color: #a4c2e6; font-size: 12px; line-height: 1.7; }
-
-.hero button {
-  margin-top: 19px;
-  padding: 12px 17px;
-  border: 1px solid #79eaff;
-  border-radius: 12px;
-  background: linear-gradient(110deg, #087bff, #413eff);
-  box-shadow: 0 0 20px #087bff88;
-  font-size: 12px;
-  font-weight: 750;
-}
-
-.hero-orb {
-  position: absolute;
-  width: 92px;
-  height: 92px;
-  right: -8px;
-  top: 53px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, white, #64f7ff 7%, #007dff 28%, #071744 65%, transparent 73%);
-  box-shadow: 0 0 25px #00aaff, 0 0 55px #005dff99;
-  animation: pulse 3s infinite;
-}
-
-.cards {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-top: 13px;
-}
-
-.card {
-  text-align: left;
-  padding: 17px;
-  min-height: 118px;
-  border-radius: 17px;
-  border: 1px solid #168bff48;
-  background: linear-gradient(145deg, #0d1e38ed, #040a16f5);
-  box-shadow: inset 0 0 22px #007bff08;
-}
-
-.card:active { border-color: var(--cyan); }
-.card .symbol { color: var(--cyan); font-size: 22px; margin-bottom: 12px; text-shadow: 0 0 15px var(--cyan); }
-.card strong { display: block; font-size: 12px; }
-.card p { color: var(--muted); font-size: 10px; line-height: 1.6; margin-top: 6px; }
-
-/* CHAT: THE GLOWING BACKGROUND */
-
-.chat-screen {
-  background:
-    radial-gradient(ellipse at 50% 12%, #064b9c35, transparent 45%),
-    radial-gradient(ellipse at 0% 60%, #006bff17, transparent 38%),
-    radial-gradient(ellipse at 100% 90%, #4826ff18, transparent 40%);
-}
-
-.chat-screen::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: .18;
-  background-image:
-    linear-gradient(#168bff16 1px, transparent 1px),
-    linear-gradient(90deg, #168bff16 1px, transparent 1px);
-  background-size: 32px 32px;
-  mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
-}
-
-.chat-screen::after {
-  content: "";
-  position: absolute;
-  pointer-events: none;
-  top: 12%;
-  left: -50%;
-  width: 200%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, #00d9ff77, #1e6aff, transparent);
-  box-shadow: 0 0 18px #008cff;
-  animation: scan 9s linear infinite;
-  opacity: .55;
-}
-
-@keyframes scan {
-  from { transform: translateY(0); }
-  to { transform: translateY(75dvh); }
-}
-
-.chat-heading {
-  position: relative;
-  z-index: 1;
-  padding: 20px 20px 12px;
-  flex-shrink: 0;
-}
-
-.chat-heading h1 { font-size: 23px; }
-
-.chat-log {
-  position: relative;
-  z-index: 1;
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  padding: 18px 15px;
-  scrollbar-width: thin;
-  scrollbar-color: #1478d9 transparent;
-}
-
-.message {
-  position: relative;
-  max-width: 88%;
-  padding: 14px 15px;
-  font-size: 12px;
-  line-height: 1.75;
-  overflow-wrap: anywhere;
-  white-space: pre-wrap;
-  animation: messageIn .3s ease-out;
-}
-
-@keyframes messageIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.message.ai {
-  align-self: flex-start;
-  border: 1px solid #087fff85;
-  border-radius: 17px 17px 17px 4px;
-  background:
-    radial-gradient(ellipse at 0% 0%, #0b61b938, transparent 75%),
-    linear-gradient(145deg, #091a35f5, #030916f5);
-  box-shadow:
-    0 0 8px #006dff20,
-    0 0 24px #006dff13,
-    inset 0 0 22px #007bff0a;
-}
-
-.message.ai::before {
-  content: "";
-  position: absolute;
-  width: 3px;
-  top: 14px;
-  bottom: 14px;
-  left: -1px;
-  border-radius: 5px;
-  background: var(--cyan);
-  box-shadow: 0 0 12px var(--cyan);
-}
-
-.message.user {
-  align-self: flex-end;
-  border: 1px solid #288dff;
-  border-radius: 17px 17px 4px 17px;
-  background:
-    linear-gradient(135deg, #103f83f5, #091b40f5);
-  box-shadow: 0 0 20px #006dff25, inset 0 0 20px #238bff12;
-}
-
-.author {
-  display: block;
-  font-size: 9px;
-  font-weight: 850;
-  letter-spacing: 2px;
-  margin-bottom: 7px;
-  color: var(--cyan);
-}
-
-.message.user .author { color: #9bcaff; }
-
-/* CHAT INPUT */
-
-.chat-input {
-  position: relative;
-  z-index: 2;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  padding: 12px;
-  padding-bottom: max(12px, env(safe-area-inset-bottom));
-  border-top: 1px solid #168bff35;
-  background: linear-gradient(180deg, #040a17ed, #02050dfc);
-  box-shadow: 0 -8px 30px #0008;
-}
-
-.chat-input input {
-  flex: 1;
-  min-width: 0;
-  padding: 13px 15px;
-  border: 1px solid #1266a866;
-  border-radius: 25px;
-  outline: none;
-  background: #071329eF;
-  color: white;
-  font-size: 12px;
-  box-shadow: inset 0 0 15px #007bff0c;
-}
-
-.chat-input input:focus {
-  border-color: #00bfff;
-  box-shadow: 0 0 14px #007bff35, inset 0 0 15px #007bff10;
-}
-
-.chat-input input::placeholder { color: #6985a6; }
-
-.send {
-  flex-shrink: 0;
-  width: 43px;
-  height: 43px;
-  border: 1px solid #78f3ff;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #078cff, #423bff);
-  box-shadow: 0 0 15px #007bff99, inset 0 0 10px #a2ffff22;
-  font-size: 17px;
-}
-
-/* VOICE ORB */
-
-.voice-screen {
-  overflow-y: auto;
-  scrollbar-width: none;
-}
-
-.voice-heading {
-  text-align: center;
-  padding: 22px 10px 0;
-}
-
-.voice-heading h1 { letter-spacing: 5px; font-size: 23px; }
-.voice-heading p { margin-top: 8px; font-size: 10px; color: var(--muted); letter-spacing: 2px; }
 
 .orb-stage {
-  position: relative;
-  width: min(78vw, 310px);
-  height: min(78vw, 310px);
-  flex-shrink: 0;
-  margin: 0 auto;
-  display: grid;
-  place-items: center;
-  isolation: isolate;
+    position: relative;
+    width: min(94vw, 480px);
+    aspect-ratio: 1;
+    display: grid;
+    place-items: center;
+    perspective: 1000px;
+    isolation: isolate;
+    transform: translateY(-2%);
 }
 
-.orb-stage::before {
-  content: "";
-  position: absolute;
-  inset: 10%;
-  border-radius: 50%;
-  background: #006dff;
-  filter: blur(55px);
-  opacity: .32;
-  animation: pulse 3s infinite;
-  z-index: -1;
+.halo {
+    position: absolute;
+    width: 55%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: #007bff;
+    filter: blur(65px);
+    opacity: .38;
+    animation: halo 3s ease-in-out infinite alternate;
 }
 
-.orb-stage::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  border: 1px solid #008bff28;
-  box-shadow: 0 0 45px #006aff18, inset 0 0 40px #006aff13;
+@keyframes halo {
+    to { opacity: .75; transform: scale(1.23); }
 }
+
+/* Planet */
+
+.planet {
+    position: absolute;
+    width: 34%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    z-index: 4;
+    overflow: hidden;
+    background:
+        radial-gradient(ellipse at 25% 20%, #ffffff 0%, #a8faff 3%, #35d8ff 10%, transparent 34%),
+        radial-gradient(ellipse at 30% 25%, #53dfff 0%, #087cff 27%, #0642a7 52%, #031638 79%, #01040c 100%);
+    box-shadow:
+        inset -18px -12px 27px #01040b,
+        inset 5px 5px 16px rgba(255,255,255,.75),
+        0 0 18px #00cfff,
+        0 0 45px #007bff,
+        0 0 100px rgba(0,110,255,.7);
+    animation: planetGlow 4s ease-in-out infinite alternate;
+}
+
+.planet::before {
+    content: "";
+    position: absolute;
+    inset: -10%;
+    border-radius: 50%;
+    background: repeating-linear-gradient(
+        165deg,
+        transparent 0 7px,
+        rgba(0,235,255,.32) 8px,
+        transparent 10px 17px
+    );
+    mix-blend-mode: screen;
+}
+
+.planet::after {
+    content: "";
+    position: absolute;
+    top: 35%;
+    left: -20%;
+    width: 140%;
+    height: 17%;
+    transform: rotate(-24deg);
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(0,234,255,.7),
+        white,
+        #008cff,
+        transparent
+    );
+    filter: blur(7px);
+}
+
+@keyframes planetGlow {
+    to { filter: brightness(1.3); }
+}
+
+/* FOUR DIFFERENT ORBITAL RINGS */
 
 .ring {
-  position: absolute;
-  border-radius: 50%;
-  pointer-events: none;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    border: 2px solid transparent;
+    border-radius: 50%;
+    transform-style: preserve-3d;
+    pointer-events: none;
 }
 
 .ring-a {
-  inset: 13%;
-  border: 2px solid transparent;
-  border-top-color: #b1fbff;
-  border-right-color: #008bff;
-  border-bottom-color: #0064ff;
-  box-shadow: 0 0 12px #008cff77, inset 0 0 12px #007bff33;
-  animation: rotate 4s linear infinite;
+    width: 87%;
+    height: 31%;
+    z-index: 3;
+    margin: -15.5% 0 0 -43.5%;
+    border-top-color: #eaffff;
+    border-left-color: #00eaff;
+    border-right-color: #087dff;
+    box-shadow: 0 0 10px #00bfff, inset 0 0 9px #087dff;
+    animation: orbitA 12s linear infinite;
 }
 
 .ring-b {
-  inset: 6%;
-  border: 1px dashed #00bfff99;
-  box-shadow: 0 0 20px #007bff22;
-  animation: rotateBack 11s linear infinite;
+    width: 91%;
+    height: 35%;
+    z-index: 5;
+    margin: -17.5% 0 0 -45.5%;
+    border-top-color: rgba(0,234,255,.95);
+    border-right-color: #d5ffff;
+    border-bottom-color: transparent;
+    border-left-color: #126bff;
+    box-shadow: 0 0 13px rgba(0,205,255,.8);
+    animation: orbitB 16s linear infinite;
 }
 
 .ring-c {
-  inset: 21%;
-  border: 2px solid transparent;
-  border-left-color: #c2a1ff;
-  border-right-color: #00eeff;
-  box-shadow: 0 0 15px #8050ff55;
-  animation: rotateBack 6s linear infinite;
+    width: 99%;
+    height: 43%;
+    z-index: 2;
+    margin: -21.5% 0 0 -49.5%;
+    border-top-color: #00dfff;
+    border-left-color: #7beaff;
+    border-right-color: #087dff;
+    box-shadow: 0 0 10px rgba(0,140,255,.6);
+    animation: orbitC 19s linear infinite;
 }
 
 .ring-d {
-  inset: 28%;
-  border: 1px solid #00eeff77;
-  box-shadow: 0 0 20px #00bfff44, inset 0 0 12px #00bfff22;
-  animation: rotate 8s linear infinite;
+    width: 75%;
+    height: 47%;
+    z-index: 6;
+    margin: -23.5% 0 0 -37.5%;
+    border-top-color: rgba(255,255,255,.9);
+    border-left-color: #00bfff;
+    border-bottom-color: #086bff;
+    box-shadow: 0 0 10px rgba(0,234,255,.6);
+    animation: orbitD 23s linear infinite;
 }
 
-.orb-core {
-  position: relative;
-  width: 35%;
-  height: 35%;
-  border-radius: 50%;
-  background:
-    radial-gradient(circle at 33% 27%,
-      #ffffff 0%, #d7ffff 4%, #67f7ff 10%,
-      #00baff 21%, #1264ff 38%,
-      #101c69 58%, #03091e 72%,
-      #00aaff 77%, #03091b 84%);
-  box-shadow:
-    0 0 10px #ffffff,
-    0 0 23px #00eaff,
-    0 0 45px #008cff,
-    0 0 80px #005dffb3,
-    0 0 120px #063cff55,
-    inset 0 0 18px #c2ffff99,
-    inset -10px -12px 24px #000c;
-  animation: pulse 2.8s ease-in-out infinite;
+@keyframes orbitA {
+    from { transform: rotate(-23deg) rotateX(68deg) rotateZ(0); }
+    to { transform: rotate(-23deg) rotateX(68deg) rotateZ(360deg); }
 }
 
-.orb-core::before {
-  content: "";
-  position: absolute;
-  inset: -18%;
-  border-radius: 50%;
-  border: 1px solid #6cf7ffbb;
-  box-shadow: 0 0 18px #00aaff99, inset 0 0 15px #007bff55;
+@keyframes orbitB {
+    from { transform: rotate(34deg) rotateX(66deg) rotateZ(0); }
+    to { transform: rotate(34deg) rotateX(66deg) rotateZ(-360deg); }
 }
 
-.orb-core::after {
-  content: "";
-  position: absolute;
-  inset: 18%;
-  border-radius: 50%;
-  border: 1px solid #d9ffffaa;
-  box-shadow: 0 0 15px #00eeff77;
+@keyframes orbitC {
+    from { transform: rotate(72deg) rotateX(72deg) rotateZ(0); }
+    to { transform: rotate(72deg) rotateX(72deg) rotateZ(360deg); }
 }
 
-.voice-state {
-  text-align: center;
-  color: #a9e8ff;
-  font-size: 10px;
-  letter-spacing: 3px;
+@keyframes orbitD {
+    from { transform: rotate(-62deg) rotateX(66deg) rotateZ(0); }
+    to { transform: rotate(-62deg) rotateX(66deg) rotateZ(-360deg); }
 }
 
-.waveform {
-  height: 34px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 4px;
-  margin: 12px 0;
+.orb-stage.listening .halo {
+    opacity: .9;
+    filter: blur(85px);
 }
 
-.waveform span {
-  width: 3px;
-  height: 7px;
-  border-radius: 5px;
-  background: #00eaff;
-  box-shadow: 0 0 10px #008cff;
-  animation: wave 1s ease-in-out infinite;
-  animation-play-state: paused;
+.orb-stage.listening .planet {
+    box-shadow: 0 0 35px #00eaff, 0 0 80px #008cff, 0 0 140px #006bff;
 }
 
-.waveform.active span { animation-play-state: running; }
-.waveform span:nth-child(2n) { animation-delay: -.4s; }
-.waveform span:nth-child(3n) { animation-delay: -.7s; }
-
-@keyframes wave {
-  0%, 100% { height: 6px; }
-  50% { height: 28px; }
+.orb-stage.thinking .planet {
+    animation: thinkingPulse .65s ease-in-out infinite alternate;
 }
 
-.caption {
-  text-align: center;
-  color: #8ba9cc;
-  font-size: 12px;
-  line-height: 1.6;
-  padding: 0 20px;
-  min-height: 38px;
+@keyframes thinkingPulse {
+    to { transform: scale(1.12); filter: brightness(1.5); }
 }
 
-.voice-controls {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 27px;
-  padding: 15px 0 25px;
+/* STATUS FLOATING UNDER THE ORB */
+
+.core-info {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 16px;
+    text-align: center;
+    pointer-events: none;
 }
 
-.round-btn {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  border: 1px solid #148bff99;
-  background: #08172deF;
-  box-shadow: 0 0 20px #006aff33;
-  font-size: 17px;
+.core-title {
+    font-family: Orbitron, sans-serif;
+    font-size: clamp(10px, 2.7vw, 13px);
+    letter-spacing: 4px;
+    color: #d7f8ff;
+    text-shadow: 0 0 18px #008cff;
 }
 
-.mic-btn {
-  position: relative;
-  width: 75px;
-  height: 75px;
-  border-radius: 50%;
-  border: 2px solid #68f4ff;
-  background: radial-gradient(circle, #128bff, #102c82 58%, #030b25);
-  box-shadow: 0 0 15px #00cfff, 0 0 35px #006aff99, inset 0 0 18px #a4ffff55;
-  font-size: 25px;
+.core-status {
+    margin-top: 9px;
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: #70b4e9;
 }
 
-.mic-btn::before {
-  content: "";
-  position: absolute;
-  inset: -9px;
-  border-radius: 50%;
-  border: 1px solid #00d9ff88;
-  box-shadow: 0 0 15px #007bff66;
-  animation: pulse 2s infinite;
+.core-line {
+    height: 1px;
+    width: 80px;
+    margin: 13px auto 0;
+    background: linear-gradient(90deg, transparent, #00cfff, transparent);
+    box-shadow: 0 0 8px #008cff;
 }
 
-.mic-btn.listening {
-  border-color: #d4b7ff;
-  background: radial-gradient(circle, #a03fff, #3a1b80 60%, #10072c);
-  box-shadow: 0 0 20px #a45bff, 0 0 45px #783bff99;
+/* CHAT FLOATS ABOVE THE BOTTOM CONTROLS */
+
+.chat-feed {
+    position: absolute;
+    z-index: 7;
+    left: 15px;
+    right: 15px;
+    bottom: calc(143px + env(safe-area-inset-bottom));
+    max-width: 520px;
+    margin: auto;
+    max-height: 25dvh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    scrollbar-width: none;
+    mask-image: linear-gradient(transparent, black 8%, black);
+    pointer-events: none;
 }
 
-/* NAV */
-
-.bottom-nav {
-  height: 65px;
-  flex-shrink: 0;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  border-top: 1px solid #167dff3b;
-  background: #020713f5;
-  backdrop-filter: blur(20px);
-  z-index: 5;
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+.chat-feed::-webkit-scrollbar {
+    display: none;
 }
 
-.nav-btn {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
-  padding: 8px 20px;
-  border: none;
-  background: transparent;
-  color: #637e9f;
-  font-size: 10px;
+.message {
+    align-self: flex-start;
+    max-width: 90%;
+    padding: 9px 12px;
+    border: 1px solid rgba(0,190,255,.25);
+    border-radius: 3px 11px 11px 11px;
+    background: rgba(3,17,36,.89);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 0 18px rgba(0,100,255,.09);
+    font-size: 12px;
+    line-height: 1.55;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+    animation: appear .2s ease-out;
 }
 
-.nav-btn b { font-size: 19px; font-weight: 400; }
-
-.nav-btn.active {
-  color: #00eaff;
-  text-shadow: 0 0 12px #00bfff;
+.message.user {
+    align-self: flex-end;
+    border-color: rgba(0,150,255,.5);
+    background: rgba(4,41,83,.91);
 }
 
-.nav-btn.active b { filter: drop-shadow(0 0 7px #00bfff); }
+.msg-label {
+    display: block;
+    margin-bottom: 4px;
+    color: #00dfff;
+    font-family: Orbitron, sans-serif;
+    font-size: 8px;
+    letter-spacing: 1px;
+}
 
-@media (max-height: 700px) {
-  .orb-stage { width: min(58vw, 235px); height: min(58vw, 235px); }
-  .voice-heading { padding-top: 12px; }
-  .voice-controls { padding: 8px 0 12px; }
-  .mic-btn { width: 65px; height: 65px; }
+@keyframes appear {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.typing {
+    align-self: flex-start;
+    color: #79cfff;
+    font-size: 11px;
+    padding: 9px;
+    background: rgba(3,17,36,.9);
+    border-radius: 8px;
+}
+
+.typing span {
+    display: inline-block;
+    width: 4px;
+    height: 4px;
+    margin-left: 4px;
+    border-radius: 50%;
+    background: var(--cyan);
+    animation: blink .7s infinite alternate;
+}
+
+.typing span:nth-child(2) { animation-delay: .2s; }
+.typing span:nth-child(3) { animation-delay: .4s; }
+
+@keyframes blink {
+    to { opacity: .2; transform: translateY(-3px); }
+}
+
+/* BOTTOM COMMAND DECK */
+
+.bottom {
+    position: absolute;
+    z-index: 12;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 12px 15px calc(10px + env(safe-area-inset-bottom));
+    background: linear-gradient(
+        to bottom,
+        rgba(2,6,17,.1),
+        rgba(2,6,17,.92) 18%,
+        #020611 55%
+    );
+    border-top: 1px solid rgba(0,180,255,.16);
+}
+
+.bottom-inner {
+    width: 100%;
+    max-width: 520px;
+    margin: auto;
+}
+
+.command-label {
+    margin: 0 0 9px 3px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #6e9dbf;
+    font-size: 8px;
+    letter-spacing: 2px;
+}
+
+.command-label strong {
+    color: #00cfff;
+    font-weight: 500;
+}
+
+.input-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.input-wrap {
+    height: 49px;
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    border: 1px solid rgba(0,173,255,.34);
+    border-radius: 11px;
+    background: rgba(6,20,41,.96);
+    box-shadow: inset 0 0 18px rgba(0,90,255,.07);
+}
+
+#userInput {
+    width: 100%;
+    min-width: 0;
+    height: 100%;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: #e9f9ff;
+    padding: 0 12px;
+    font-size: 12px;
+}
+
+#userInput::placeholder {
+    color: #527493;
+}
+
+.btn {
+    height: 49px;
+    width: 47px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    color: #b9efff;
+    background: linear-gradient(145deg, #0b2a4d, #061225);
+    border: 1px solid rgba(0,185,255,.4);
+    border-radius: 11px;
+    font-size: 19px;
+    transition: .18s;
+}
+
+.btn:active {
+    transform: scale(.94);
+    box-shadow: 0 0 18px #008cff;
+}
+
+.btn.send {
+    background: linear-gradient(135deg, #078fff, #064ac0);
+    color: white;
+    box-shadow: 0 0 15px rgba(0,119,255,.28);
+}
+
+.btn.active {
+    background: #064db5;
+    color: white;
+    box-shadow: 0 0 22px #008cff;
+    animation: micGlow 1s infinite alternate;
+}
+
+@keyframes micGlow {
+    to { box-shadow: 0 0 27px #00eaff; }
+}
+
+.tools-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.tool {
+    min-height: 34px;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border: 1px solid rgba(0,155,255,.18);
+    border-radius: 8px;
+    background: rgba(5,19,38,.8);
+    color: #79a9cf;
+    font-size: 9px;
+    letter-spacing: .6px;
+}
+
+.tool.active {
+    color: #00eaff;
+    border-color: rgba(0,234,255,.6);
+    background: rgba(0,94,177,.2);
+}
+
+.footer {
+    text-align: center;
+    margin-top: 10px;
+    color: #3f6385;
+    font-size: 8px;
+    letter-spacing: 1.5px;
+}
+
+.footer span {
+    color: #70baff;
+}
+
+@media (max-height: 650px) {
+    .orb-zone { top: 55px; bottom: 140px; }
+    .orb-stage { width: min(76vw, 340px); }
+    .core-info { bottom: 4px; }
+    .chat-feed { max-height: 19dvh; bottom: calc(132px + env(safe-area-inset-bottom)); }
+    .bottom { padding-top: 7px; }
+    .btn, .input-wrap { height: 43px; }
+    .btn { width: 43px; }
+    .tools-row { margin-top: 6px; }
+    .tool { min-height: 29px; }
+    .footer { margin-top: 5px; }
+}
+
+@media (min-width: 700px) {
+    .orb-stage { width: min(65vw, 510px); }
+    .chat-feed { left: 50%; transform: translateX(-50%); width: min(520px, 90vw); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: .01ms !important; }
+    *, *::before, *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+    }
 }
 </style>
 </head>
 
 <body>
-<div class="app">
-  <div class="ambient"></div>
 
-  <header class="topbar">
-    <button class="round-btn" style="width:35px;height:35px" onclick="switchTab('home')">⌂</button>
-    <div class="brand">
-      <div class="brand-core"></div>
-      <div>
-        <div class="brand-name">C.H.U.C.K.</div>
-        <div class="brand-sub">AI INTELLIGENCE</div>
-      </div>
-    </div>
-    <div class="online">ONLINE</div>
-  </header>
-
-  <!-- HOME SCREEN -->
-  <section class="screen active" id="screen-home">
-    <div class="home-scroll">
-      <div class="welcome">
-        <div class="avatar">W</div>
-        <div>
-          <strong>Welcome back, Boss Wayne.</strong>
-          <p>Your intelligence system is ready.</p>
-        </div>
-      </div>
-
-      <div class="hero">
-        <div class="eyebrow">YOUR PERSONAL AI</div>
-        <h1>Think bigger.<br><span class="gradient">Build smarter.</span></h1>
-        <p>Ideas, intelligence and execution — in one place.</p>
-        <button onclick="switchTab('chat')">START CONVERSATION →</button>
-        <div class="hero-orb"></div>
-      </div>
-
-      <div class="cards">
-        <button class="card" onclick="switchTab('chat')">
-          <div class="symbol">◈</div>
-          <strong>AI Chat</strong>
-          <p>Ask questions and solve problems.</p>
-        </button>
-        <button class="card" onclick="switchTab('voice')">
-          <div class="symbol">♩</div>
-          <strong>Voice Core</strong>
-          <p>Speak naturally with CHUCK.</p>
-        </button>
-        <button class="card" onclick="command('Help me manage my business')">
-          <div class="symbol">⌘</div>
-          <strong>Business</strong>
-          <p>Plan work and organize tasks.</p>
-        </button>
-        <button class="card" onclick="command('Help me build a software project')">
-          <div class="symbol">⌬</div>
-          <strong>Code Lab</strong>
-          <p>Turn ideas into applications.</p>
-        </button>
-      </div>
-    </div>
-  </section>
-
-  <!-- CHAT SCREEN -->
-  <section class="screen chat-screen" id="screen-chat">
-    <div class="chat-heading">
-      <div class="eyebrow">NEURAL LINK / ESTABLISHED</div>
-      <h1 class="gradient">Talk to CHUCK.</h1>
-      <p class="description">What's on your mind, Boss Wayne?</p>
-    </div>
-
-    <div class="chat-log" id="chatMessages" aria-live="polite">
-      <div class="message ai">
-        <span class="author">C.H.U.C.K. / AI CORE</span>
-        Systems online, Boss Wayne. I'm ready for your next command.
-      </div>
-    </div>
-
-    <form class="chat-input" id="chatForm">
-      <button type="button" class="round-btn" style="width:40px;height:40px" onclick="switchTab('voice')">♩</button>
-      <input id="chatInput" placeholder="Message your AI..." autocomplete="off">
-      <button type="submit" class="send">➤</button>
-    </form>
-  </section>
-
-  <!-- VOICE SCREEN -->
-  <section class="screen voice-screen" id="screen-voice">
-    <div class="voice-heading">
-      <div class="eyebrow">NEURAL CORE / 01</div>
-      <h1 class="gradient">C.H.U.C.K.</h1>
-      <p>PERSONAL ARTIFICIAL INTELLIGENCE</p>
-    </div>
-
-    <div class="orb-stage">
-      <div class="ring ring-a"></div>
-      <div class="ring ring-b"></div>
-      <div class="ring ring-c"></div>
-      <div class="ring ring-d"></div>
-      <div class="orb-core"></div>
-    </div>
-
-    <div class="voice-state" id="voiceState">CORE STANDBY</div>
-
-    <div class="waveform" id="waveform">
-      <span></span><span></span><span></span><span></span><span></span>
-      <span></span><span></span><span></span><span></span><span></span>
-      <span></span><span></span><span></span><span></span><span></span>
-      <span></span><span></span><span></span><span></span><span></span>
-    </div>
-
-    <div class="caption" id="caption">Ready when you are, Boss Wayne.</div>
-
-    <div class="voice-controls">
-      <button class="round-btn" id="muteBtn" aria-label="Toggle voice output">♫</button>
-      <button class="mic-btn" id="micBtn" aria-label="Start listening">🎙</button>
-      <button class="round-btn" id="stopBtn" aria-label="Stop voice">■</button>
-    </div>
-  </section>
-
-  <nav class="bottom-nav">
-    <button class="nav-btn active" data-tab="home" onclick="switchTab('home')"><b>⌂</b>Home</button>
-    <button class="nav-btn" data-tab="chat" onclick="switchTab('chat')"><b>▤</b>Chat</button>
-    <button class="nav-btn" data-tab="voice" onclick="switchTab('voice')"><b>◉</b>Voice</button>
-  </nav>
+<div class="space">
+    <div class="grid"></div>
+    <div class="ambient"></div>
+    <div id="stars"></div>
 </div>
 
-<script>
-/* CHANGE THIS TO YOUR REAL BACKEND ENDPOINT */
-const BACKEND_URL = "https://chuck-10.onrender.com/chat";
+<header class="topbar">
+    <div>
+        <div class="logo">C<span>.</span>H<span>.</span>U<span>.</span>C<span>.</span>K</div>
+        <div class="subtitle">CRAIG'S AI COMMAND SYSTEM</div>
+    </div>
+    <div class="connection">
+        <span class="dot" id="statusDot"></span>
+        <span id="statusText">CORE ONLINE</span>
+    </div>
+</header>
 
-let recognition = null;
-let listening = false;
-let voiceOutput = true;
-let busy = false;
+<!-- LARGE FULL-SCREEN ORB -->
+
+<section class="orb-zone">
+    <div class="orb-stage" id="orbStage">
+        <div class="halo"></div>
+        <div class="ring ring-c"></div>
+        <div class="ring ring-a"></div>
+        <div class="planet"></div>
+        <div class="ring ring-b"></div>
+        <div class="ring ring-d"></div>
+    </div>
+
+    <div class="core-info">
+        <div class="core-title">C.H.U.C.K.</div>
+        <div class="core-status" id="coreStatus">AWAITING COMMAND</div>
+        <div class="core-line"></div>
+    </div>
+</section>
+
+<!-- RESPONSES FLOAT OVER THE BACKGROUND -->
+
+<section class="chat-feed" id="messages" aria-live="polite">
+    <div class="message">
+        <span class="msg-label">C.H.U.C.K. / CORE</span>
+        Online and ready, Boss Wayne. Give me a command.
+    </div>
+</section>
+
+<!-- ALL COMMAND CONTROLS STAY AT THE BOTTOM -->
+
+<section class="bottom">
+    <div class="bottom-inner">
+
+        <div class="command-label">
+            <span>COMMAND INPUT</span>
+            <strong id="aiStatus">AI STANDBY</strong>
+        </div>
+
+        <form class="input-row" id="chatForm">
+            <div class="input-wrap">
+                <input
+                    id="userInput"
+                    type="text"
+                    placeholder="Talk to C.H.U.C.K., Boss..."
+                    autocomplete="off"
+                    enterkeyhint="send"
+                    aria-label="Enter your command"
+                >
+            </div>
+
+            <button class="btn" type="button" id="micBtn"
+                    aria-label="Record voice command" title="Record">
+                🎙
+            </button>
+
+            <button class="btn send" type="submit"
+                    aria-label="Send command" title="Send">
+                ➤
+            </button>
+        </form>
+
+        <div class="tools-row">
+            <button class="tool" id="wakeBtn" type="button">
+                <span>◉</span><span id="wakeLabel">WAKE WORD OFF</span>
+            </button>
+            <button class="tool" id="voiceBtn" type="button">
+                <span>♫</span><span id="voiceLabel">VOICE ON</span>
+            </button>
+            <button class="tool" id="clearBtn" type="button">
+                <span>⌫</span><span>CLEAR CHAT</span>
+            </button>
+        </div>
+
+        <div class="footer">
+            POWERED BY <span>C.H.U.C.K.</span> · COMMAND KERNEL
+        </div>
+    </div>
+</section>
+
+<script>
+"use strict";
+
+/* BACKEND */
+
+const BACKEND_URL = "https://chuck-ai-backend.onrender.com/ask";
 
 const $ = id => document.getElementById(id);
 
-function switchTab(name) {
-  document.querySelectorAll('.screen').forEach(el =>
-    el.classList.toggle('active', el.id === 'screen-' + name)
-  );
-  document.querySelectorAll('.nav-btn').forEach(el =>
-    el.classList.toggle('active', el.dataset.tab === name)
-  );
+const messages = $("messages");
+const input = $("userInput");
+const micBtn = $("micBtn");
+const wakeBtn = $("wakeBtn");
+const voiceBtn = $("voiceBtn");
+const orb = $("orbStage");
+
+let busy = false;
+let wakeMode = false;
+let manualRecording = false;
+let voiceEnabled = true;
+let recognition = null;
+let recognitionRunning = false;
+let pendingRestart = false;
+let restartTimer = null;
+
+/* STAR FIELD */
+
+(function createStars() {
+    const container = $("stars");
+
+    for (let i = 0; i < 65; i++) {
+        const star = document.createElement("div");
+        star.className = "star";
+        star.style.left = (Math.random() * 100) + "%";
+        star.style.top = (Math.random() * 100) + "%";
+        star.style.animationDelay = (Math.random() * 4) + "s";
+        star.style.animationDuration = (2 + Math.random() * 4) + "s";
+        container.appendChild(star);
+    }
+})();
+
+/* UI STATUS */
+
+function setStatus(mode, label) {
+    $("statusText").textContent = label;
+    $("coreStatus").textContent =
+        mode === "listening" ? "LISTENING FOR COMMANDS" :
+        mode === "thinking" ? "PROCESSING REQUEST" :
+        mode === "error" ? "CONNECTION INTERRUPTED" :
+        wakeMode ? "WAKE WORD ACTIVE" : "AWAITING COMMAND";
+
+    $("statusDot").className = "dot" +
+        (mode === "thinking" ? " busy" : "");
+
+    orb.classList.toggle("listening", mode === "listening");
+    orb.classList.toggle("thinking", mode === "thinking");
+
+    $("aiStatus").textContent =
+        mode === "thinking" ? "PROCESSING..." :
+        mode === "error" ? "CHECK CONNECTION" :
+        mode === "listening" ? "VOICE ACTIVE" : "AI STANDBY";
 }
 
-function command(text) {
-  switchTab('chat');
-  $('chatInput').value = text;
-  sendMessage();
+/* CHAT */
+
+function addMessage(text, sender = "ai") {
+    const bubble = document.createElement("div");
+    bubble.className = "message" + (sender === "user" ? " user" : "");
+
+    const label = document.createElement("span");
+    label.className = "msg-label";
+    label.textContent = sender === "user"
+        ? "BOSS WAYNE / COMMAND"
+        : "C.H.U.C.K. / CORE";
+
+    const body = document.createElement("div");
+    body.textContent = String(text);
+
+    bubble.append(label, body);
+    messages.appendChild(bubble);
+    messages.scrollTop = messages.scrollHeight;
+
+    return bubble;
 }
 
-function addMessage(text, type) {
-  const el = document.createElement('div');
-  el.className = 'message ' + type;
+function showTyping() {
+    const el = document.createElement("div");
+    el.className = "typing";
+    el.id = "typing";
 
-  const label = document.createElement('span');
-  label.className = 'author';
-  label.textContent = type === 'user' ? 'BOSS WAYNE' : 'C.H.U.C.K. / AI CORE';
+    el.append(
+        document.createTextNode("Thinking"),
+        document.createElement("span"),
+        document.createElement("span"),
+        document.createElement("span")
+    );
 
-  const content = document.createElement('div');
-  content.textContent = text;
-
-  el.append(label, content);
-  $('chatMessages').appendChild(el);
-  $('chatMessages').scrollTop = $('chatMessages').scrollHeight;
-  return el;
+    messages.appendChild(el);
+    messages.scrollTop = messages.scrollHeight;
 }
 
-$('chatForm').addEventListener('submit', e => {
-  e.preventDefault();
-  sendMessage();
-});
+function hideTyping() {
+    $("typing")?.remove();
+}
 
-async function sendMessage(text) {
-  const input = $('chatInput');
-  const message = (text || input.value).trim();
+/* VOICE OUTPUT */
 
-  if (!message || busy) return;
+function speak(text) {
+    if (!voiceEnabled || !("speechSynthesis" in window)) return;
 
-  busy = true;
-  input.value = '';
-  addMessage(message, 'user');
+    speechSynthesis.cancel();
 
-  const loading = addMessage('Processing your request...', 'ai');
+    const utterance = new SpeechSynthesisUtterance(String(text));
+    utterance.lang = "en-US";
+    utterance.rate = 1;
+    utterance.pitch = 0.85;
 
-  try {
-    const response = await fetch(BACKEND_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message })
-    });
+    const voices = speechSynthesis.getVoices();
+    const selected = voices.find(v =>
+        /david|mark|daniel|james|guy/i.test(v.name) &&
+        /en/i.test(v.lang)
+    ) || voices.find(v => /en/i.test(v.lang));
 
-    const raw = await response.text();
-    let data;
+    if (selected) utterance.voice = selected;
+
+    speechSynthesis.speak(utterance);
+}
+
+/* SEND TO YOUR EXISTING AI BACKEND */
+
+async function sendMessage(raw) {
+    const message = String(raw || "").trim();
+
+    if (!message || busy) return;
+
+    input.value = "";
+    addMessage(message, "user");
+
+    busy = true;
+    setStatus("thinking", "THINKING");
+    showTyping();
 
     try {
-      data = JSON.parse(raw);
-    } catch {
-      throw new Error('Backend did not return valid JSON.');
+        let response;
+
+        // Use the native Android bridge if your app exposes it.
+        if (window.ChuckBridge &&
+            typeof window.ChuckBridge.sendMessage === "function") {
+
+            response = await new Promise((resolve, reject) => {
+                const callbackId = "chuck_" + Date.now();
+
+                const timeout = setTimeout(() => {
+                    delete window[callbackId];
+                    reject(new Error("Native request timed out"));
+                }, 60000);
+
+                window[callbackId] = result => {
+                    clearTimeout(timeout);
+                    delete window[callbackId];
+
+                    try {
+                        const obj = typeof result === "string"
+                            ? JSON.parse(result) : result;
+
+                        resolve(
+                            typeof obj === "string" ? obj :
+                            obj.reply ?? obj.response ?? obj.message
+                        );
+                    } catch {
+                        resolve(result);
+                    }
+                };
+
+                try {
+                    window.ChuckBridge.sendMessage(message, callbackId);
+                } catch (err) {
+                    clearTimeout(timeout);
+                    delete window[callbackId];
+                    reject(err);
+                }
+            });
+
+        } else {
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 60000);
+
+            try {
+                const res = await fetch(BACKEND_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message }),
+                    signal: controller.signal
+                });
+
+                if (!res.ok) {
+                    throw new Error("Backend HTTP " + res.status);
+                }
+
+                const data = await res.json();
+                response = data.reply ?? data.response ?? data.message;
+
+            } finally {
+                clearTimeout(timeout);
+            }
+        }
+
+        if (typeof response !== "string" || !response.trim()) {
+            throw new Error("The backend returned no readable reply.");
+        }
+
+        addMessage(response, "ai");
+        speak(response);
+
+    } catch (err) {
+        console.error("CHUCK:", err);
+
+        const errorMessage = err.name === "AbortError"
+            ? "The request timed out. The backend may be waking up."
+            : "I couldn't connect to my AI backend, Boss Wayne. Check your connection and the /ask endpoint.";
+
+        addMessage(errorMessage, "ai");
+        setStatus("error", "CONNECTION ISSUE");
+
+    } finally {
+        hideTyping();
+        busy = false;
+
+        if (wakeMode || manualRecording) {
+            setStatus("listening", "VOICE ACTIVE");
+        } else if ($("statusText").textContent !== "CONNECTION ISSUE") {
+            setStatus("ready", "CORE ONLINE");
+        }
     }
-
-    if (!response.ok) {
-      throw new Error(data.detail || data.error || 'HTTP ' + response.status);
-    }
-
-    const reply = data.response ?? data.reply ?? data.message;
-
-    if (typeof reply !== 'string' || !reply.trim()) {
-      throw new Error('No text reply found in the backend response.');
-    }
-
-    loading.remove();
-    addMessage(reply, 'ai');
-    speak(reply);
-  } catch (error) {
-    loading.remove();
-    addMessage('Connection error: ' + error.message +
-      '. Check the backend URL, server logs and CORS configuration.', 'ai');
-  } finally {
-    busy = false;
-  }
 }
 
-/* TEXT TO SPEECH */
-function speak(text) {
-  if (!voiceOutput || !('speechSynthesis' in window)) return;
+/* VOICE RECOGNITION */
 
-  speechSynthesis.cancel();
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = 'en-US';
-  utterance.pitch = .85;
-  utterance.rate = 1;
+const SpeechRecognition =
+    window.SpeechRecognition || window.webkitSpeechRecognition;
 
-  utterance.onstart = () => setVoice('SPEAKING', 'CHUCK is responding, Boss Wayne.');
-  utterance.onend = () => setVoice('CORE STANDBY', 'Ready when you are, Boss Wayne.');
-  utterance.onerror = () => setVoice('CORE STANDBY', 'Voice output ended.');
-
-  speechSynthesis.speak(utterance);
-}
-
-function setVoice(state, text) {
-  $('voiceState').textContent = state;
-  $('caption').textContent = text;
-  $('waveform').classList.toggle('active',
-    state === 'LISTENING' || state === 'SPEAKING'
-  );
-  $('micBtn').classList.toggle('listening', state === 'LISTENING');
-}
-
-/* SPEECH RECOGNITION */
-function startListening() {
-  const SpeechAPI = window.SpeechRecognition ||
-                    window.webkitSpeechRecognition;
-
-  if (!SpeechAPI) {
-    setVoice('UNAVAILABLE', 'Use a browser that supports speech recognition.');
-    return;
-  }
-
-  if (listening && recognition) {
-    recognition.stop();
-    return;
-  }
-
-  recognition = new SpeechAPI();
-  recognition.lang = 'en-US';
-  recognition.continuous = false;
-  recognition.interimResults = true;
-
-  recognition.onstart = () => {
-    listening = true;
-    setVoice('LISTENING', 'Speak now, Boss Wayne.');
-  };
-
-  recognition.onresult = event => {
-    let transcript = '';
-    for (let i = event.resultIndex; i < event.results.length; i++) {
-      transcript += event.results[i][0].transcript;
+function initializeVoice() {
+    if (!SpeechRecognition) {
+        $("aiStatus").textContent = "VOICE UNSUPPORTED";
+        micBtn.disabled = true;
+        micBtn.style.opacity = ".45";
+        return;
     }
 
-    $('caption').textContent = transcript;
+    recognition = new SpeechRecognition();
+    recognition.lang = "en-US";
+    recognition.continuous = true;
+    recognition.interimResults = false;
 
-    const last = event.results[event.results.length - 1];
-    if (last.isFinal && transcript.trim()) {
-      listening = false;
-      setVoice('PROCESSING', 'Analyzing your command...');
-      sendMessage(transcript.trim()).then(() => switchTab('voice'));
-    }
-  };
+    recognition.onstart = () => {
+        recognitionRunning = true;
+        setStatus("listening", "LISTENING");
+        micBtn.classList.add("active");
+    };
 
-  recognition.onerror = event => {
-    listening = false;
-    setVoice('CORE STANDBY', 'Microphone error: ' + event.error);
-  };
+    recognition.onresult = event => {
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+            if (!event.results[i].isFinal) continue;
 
-  recognition.onend = () => {
-    listening = false;
-    if ($('voiceState').textContent === 'LISTENING') {
-      setVoice('CORE STANDBY', 'Tap the microphone to speak again.');
-    }
-  };
+            const transcript = event.results[i][0].transcript.trim();
+            if (!transcript) continue;
 
-  try {
-    recognition.start();
-  } catch {
-    setVoice('CORE STANDBY', 'Could not start microphone. Try again.');
-  }
+            if (manualRecording) {
+                manualRecording = false;
+                stopRecognitionIfIdle();
+                sendMessage(transcript);
+                continue;
+            }
+
+            if (wakeMode) {
+                const match = transcript.match(/\bchuck\b[\s,.:;-]*(.*)/i);
+
+                if (match) {
+                    const command = match[1].trim();
+
+                    if (command) {
+                        sendMessage(command);
+                    } else {
+                        addMessage("I'm listening, Boss Wayne. What's your command?", "ai");
+                        speak("Yes, Boss Wayne. I'm listening.");
+                    }
+                }
+            }
+        }
+    };
+
+    recognition.onerror = event => {
+        console.warn("Voice error:", event.error);
+
+        if (event.error === "not-allowed" ||
+            event.error === "service-not-allowed") {
+            wakeMode = false;
+            manualRecording = false;
+            updateWakeButton();
+            setStatus("error", "MIC PERMISSION");
+        }
+    };
+
+    recognition.onend = () => {
+        recognitionRunning = false;
+
+        if (wakeMode || manualRecording) {
+            pendingRestart = true;
+            clearTimeout(restartTimer);
+
+            restartTimer = setTimeout(() => {
+                pendingRestart = false;
+                startRecognition();
+            }, 450);
+        } else {
+            micBtn.classList.remove("active");
+            setStatus("ready", "CORE ONLINE");
+        }
+    };
 }
 
-$('micBtn').addEventListener('click', startListening);
+function startRecognition() {
+    if (!recognition || recognitionRunning) return;
 
-$('muteBtn').addEventListener('click', () => {
-  voiceOutput = !voiceOutput;
-  $('muteBtn').textContent = voiceOutput ? '♫' : '♪';
+    try {
+        recognition.start();
+    } catch (err) {
+        console.warn("Could not start voice recognition:", err.message);
+    }
+}
 
-  if (!voiceOutput) speechSynthesis.cancel();
+function stopRecognitionIfIdle() {
+    if (wakeMode || manualRecording) return;
 
-  setVoice('CORE STANDBY',
-    voiceOutput ? 'Voice output enabled.' : 'Voice output muted.');
+    clearTimeout(restartTimer);
+
+    if (recognition && recognitionRunning) {
+        recognition.stop();
+    }
+
+    micBtn.classList.remove("active");
+}
+
+function updateWakeButton() {
+    $("wakeLabel").textContent = wakeMode ? "WAKE WORD ON" : "WAKE WORD OFF";
+    wakeBtn.classList.toggle("active", wakeMode);
+}
+
+micBtn.addEventListener("click", () => {
+    if (!recognition) {
+        addMessage("Voice recognition is not supported in this browser.", "ai");
+        return;
+    }
+
+    if (manualRecording) {
+        manualRecording = false;
+        micBtn.classList.remove("active");
+        stopRecognitionIfIdle();
+        return;
+    }
+
+    // A manual recording takes priority over wake-word mode.
+    manualRecording = true;
+    micBtn.classList.add("active");
+
+    if (!recognitionRunning) {
+        startRecognition();
+    } else {
+        setStatus("listening", "LISTENING");
+    }
 });
 
-$('stopBtn').addEventListener('click', () => {
-  if (recognition && listening) recognition.stop();
-  if ('speechSynthesis' in window) speechSynthesis.cancel();
-  listening = false;
-  setVoice('CORE STANDBY', 'Systems standing by, Boss Wayne.');
+wakeBtn.addEventListener("click", () => {
+    if (!recognition) {
+        addMessage("Wake-word recognition is not supported by this browser.", "ai");
+        return;
+    }
+
+    wakeMode = !wakeMode;
+    manualRecording = false;
+
+    updateWakeButton();
+    micBtn.classList.toggle("active", wakeMode);
+
+    if (wakeMode) {
+        startRecognition();
+        addMessage(
+            'Wake-word mode enabled. Say "CHUCK" followed by your command while this page is active.',
+            "ai"
+        );
+    } else {
+        stopRecognitionIfIdle();
+        addMessage("Wake-word mode disabled.", "ai");
+        setStatus("ready", "CORE ONLINE");
+    }
 });
+
+/* BOTTOM CONTROLS */
+
+$("chatForm").addEventListener("submit", event => {
+    event.preventDefault();
+    sendMessage(input.value);
+});
+
+voiceBtn.addEventListener("click", () => {
+    voiceEnabled = !voiceEnabled;
+
+    $("voiceLabel").textContent = voiceEnabled ? "VOICE ON" : "VOICE OFF";
+    voiceBtn.classList.toggle("active", voiceEnabled);
+
+    if (!voiceEnabled && "speechSynthesis" in window) {
+        speechSynthesis.cancel();
+    }
+});
+
+$("clearBtn").addEventListener("click", () => {
+    messages.replaceChildren();
+    addMessage("Channel cleared, Boss Wayne. Awaiting your next command.", "ai");
+});
+
+/* START */
+
+initializeVoice();
+setStatus("ready", "CORE ONLINE");
+updateWakeButton();
 </script>
+
 </body>
 </html>
