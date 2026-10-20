@@ -1,69 +1,146 @@
-import os, sqlite3, time
-from fastapi import FastAPI, Header, HTTPException
-from fastapi.responses import HTMLResponse
+
+import os
+import sqlite3
+import time
+
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from google import genai
 from google.genai import types
 
-MODEL = os.getenv("MODEL", "gemini-3.7-flash")
-TOKEN = os.getenv("CHUCK_TOKEN", "")
+# Models are configurable through Render environment variables.
+MODEL = os.getenv("MODEL", "gemini-3.8-flash")
+FALLBACK_MODEL = os.getenv("FALLBACK_MODEL", "gemini-3.6-flash")
 DB_PATH = os.getenv("DB_PATH", "chuck.db")
 
-client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
-app = FastAPI(title="Chuck")
+api_key = os.getenv("GEMINI_API_KEY")
+if not api_key:
+    raise RuntimeError("GEMINI_API_KEY is missing from environment variables.")
 
+client = genai.Client(api_key=api_key)
+app = FastAPI(title="C.H.U.C.K.")
+
+# Allows your website to connect to the API.
+# No credentials are enabled for wildcard origins.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["*"],
+)
+
+# Keep your existing SQLite storage.
 db = sqlite3.connect(DB_PATH, check_same_thread=False)
-db.execute("create table if not exists history(id integer primary key, role text, content text, ts real)")
-db.execute("create table if not exists memory(key text primary key, value text)")
+db.execute(
+    "CREATE TABLE IF NOT EXISTS history "
+    "(id INTEGER PRIMARY KEY, role TEXT, content TEXT, ts REAL)"
+)
+db.execute(
+    "CREATE TABLE IF NOT EXISTS memory "
+    "(key TEXT PRIMARY KEY, value TEXT)"
+)
 db.commit()
 
-TOOLS = types.Tool(function_declarations=[
-    {
-        "name": "remember",
-        "description": "Save a lasting fact about the user (name, preferences, people, routines).",
-        "parameters": {
-            "type": "object",
-            "properties": {"key": {"type": "string"}, "value": {"type": "string"}},
-            "required": ["key", "value"],
-        },
-    },
-    {
-        "name": "forget",
-        "description": "Delete a saved memory by key.",
-        "parameters": {
-            "type": "object",
-            "properties": {"key": {"type": "string"}},
-            "required": ["key"],
-        },
-    },
-    {
-        "name": "open_url",
-        "description": "Open an app or website on the user's phone using a URL or deep link, e.g. https://youtube.com, spotify:, tel:+15551234567.",
-        "parameters": {
-            "type": "object",
-            "properties": {"url": {"type": "string"}},
-            "required": ["url"],
-        },
-    },
-])
 
 class ChatRequest(BaseModel):
     message: str
 
+
 @app.get("/")
 def read_root():
-    return {"status": "online", "message": "Chuck backend is running."}
+    return {
+        "status": "online",
+        "message": "C.H.U.C.K. backend is running."
+    }
 
+
+def ask_gemini(message: str) -> str:
+    models = list(dict.fromkeys([MODEL, FALLBACK_MODEL]))
+    last_error = None
+
+    for model in models:
+        # Retry temporary overloads twice before trying fallback.
+        for attempt in range(2):
+            try:
+                result = client.models.generate_content(
+                    model=model,
+                    contents=message,
+                    config=types.GenerateContentConfig(
+                        thinking_config=types.ThinkingConfig(
+                            thinking_level="low"
+                        )
+                    ),
+                )
+
+                reply = result.text
+                if reply:
+                    return reply
+
+                raise RuntimeError("Gemini returned an empty response.")
+
+            except Exception as exc:
+                last_error = exc
+                error_text = str(exc).lower()
+
+                is_temporary = any(
+                    term in error_text
+                    for term in [
+                        "503",
+                        "unavailable",
+                        "overloaded",
+                        "high demand",
+                        "429",
+                        "resource_exhausted",
+                        "rate limit",
+                        "timeout",
+                    ]
+                )
+
+                print(
+                    f"Gemini error: model={model}, "
+                    f"attempt={attempt + 1}, error={exc}"
+                )
+
+                if is_temporary and attempt == 0:
+                    time.sleep(2)
+                    continue
+
+                # Try the fallback model after the primary fails.
+                break
+
+    error_text = str(last_error).lower() if last_error else ""
+
+    if any(term in error_text for term in [
+        "503", "unavailable", "overloaded", "high demand",
+        "429", "resource_exhausted", "rate limit", "timeout"
+    ]):
+        raise HTTPException(
+            status_code=503,
+            detail=(
+                "Gemini is temporarily busy. "
+                "Please try again shortly."
+            ),
+        )
+
+    print(f"All Gemini models failed: {last_error}")
+    raise HTTPException(
+        status_code=502,
+        detail="C.H.U.C.K. could not get a response from Gemini."
+    )
+
+
+# Support both the old route and the website's route.
+@app.post("/ask")
 @app.post("/chat")
 def chat_endpoint(req: ChatRequest):
-    try:
-        response = client.models.generate_content(
-            model=MODEL,
-            contents=req.message,
-            config=types.GenerateContentConfig(
-                tools=[TOOLS]
-            )
+    message = req.message.strip()
+
+    if not message:
+        raise HTTPException(
+            status_code=400,
+            detail="Please enter a message."
         )
-        return {"response": response.text}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+
+    reply = ask_gemini(message)
+    return {"response": reply}
